@@ -47,7 +47,7 @@ A Python script to replace the cover (first page) of a PDF file with a new image
 ## Usage
 
 ```bash
-python pdf_cover_replacer.py <input_pdf> <output_pdf> <cover_image>
+python pdf_cover_replacer.py [--insert] <input_pdf> <output_pdf> <cover_image>
 ```
 
 ### Parameters
@@ -55,18 +55,27 @@ python pdf_cover_replacer.py <input_pdf> <output_pdf> <cover_image>
 - `input_pdf`: Path to the input PDF file
 - `output_pdf`: Path where the modified PDF will be saved
 - `cover_image`: Path to the new cover image (PNG or JPG/JPEG format)
+- `--insert`: (Optional) Insert a new first page instead of replacing the existing one
 
-### Example
+### Examples
 
+Replace the first page of a PDF:
 ```bash
-python pdf_cover_replacer.py input.pdf output_with_new_cover.pdf cover_image.png
+python pdf_cover_replacer.py input.pdf output.pdf cover.jpg
+```
+
+Insert a new first page (keeps all original pages):
+```bash
+python pdf_cover_replacer.py --insert input.pdf output.pdf cover.jpg
 ```
 
 ## Features
 
-- Replaces the first page of the PDF with the specified image
+- Replace or insert a cover page in a PDF
 - Preserves the original PDF's page dimensions
+- Maintains aspect ratio of the cover image
 - Simple command-line interface with error handling
+- Supports both PNG and JPG/JPEG images
 
 ## Notes
 

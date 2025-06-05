@@ -3,26 +3,30 @@ from PIL import Image
 import io
 import os
 
-def replace_pdf_cover(input_pdf_path, output_pdf_path, new_cover_path):
+def replace_pdf_cover(input_pdf_path, output_pdf_path, new_cover_path, insert_new_page=False):
     """
     Replace the cover (first page) of a PDF with a new image.
     
     Args:
         input_pdf_path (str): Path to the input PDF file
         output_pdf_path (str): Path to save the modified PDF
-        new_cover_path (str): Path to the new cover image (PNG format)
+        new_cover_path (str): Path to the new cover image (PNG or JPG format)
+        insert_new_page (bool): If True, inserts a new first page instead of replacing
     """
     # Open the PDF
     doc = fitz.open(input_pdf_path)
     
-    # Get the first page
-    page = doc[0]
+    # Get the dimensions from the first page
+    first_page = doc[0]
+    rect = first_page.rect
     
-    # Get the page dimensions
-    rect = page.rect
-    
-    # Clear the page content
-    page.clean_contents()
+    if insert_new_page:
+        # Insert a new first page with the same dimensions as the first page
+        page = doc.new_page(0, width=rect.width, height=rect.height)
+    else:
+        # Use the first page and clear its content
+        page = first_page
+        page.clean_contents()
     
     # Add the new cover image
     img = Image.open(new_cover_path)
@@ -53,14 +57,21 @@ def replace_pdf_cover(input_pdf_path, output_pdf_path, new_cover_path):
 
 if __name__ == "__main__":
     import sys
+    import argparse
     
-    if len(sys.argv) != 4:
-        print("Usage: python pdf_cover_replacer.py <input_pdf> <output_pdf> <new_cover.png>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Replace or insert a cover page in a PDF.')
+    parser.add_argument('input_pdf', help='Path to the input PDF file')
+    parser.add_argument('output_pdf', help='Path to save the modified PDF')
+    parser.add_argument('cover_image', help='Path to the new cover image (PNG or JPG format)')
+    parser.add_argument('--insert', action='store_true', 
+                       help='Insert a new first page instead of replacing the existing one')
     
-    input_pdf = sys.argv[1]
-    output_pdf = sys.argv[2]
-    new_cover = sys.argv[3]
+    args = parser.parse_args()
+    
+    input_pdf = args.input_pdf
+    output_pdf = args.output_pdf
+    new_cover = args.cover_image
+    insert_new_page = args.insert
     
     if not os.path.exists(input_pdf):
         print(f"Error: Input PDF file '{input_pdf}' not found.")
@@ -78,7 +89,7 @@ if __name__ == "__main__":
         sys.exit(1)
     
     try:
-        replace_pdf_cover(input_pdf, output_pdf, new_cover)
+        replace_pdf_cover(input_pdf, output_pdf, new_cover, insert_new_page)
         print(f"Successfully created new PDF with replaced cover: {output_pdf}")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
